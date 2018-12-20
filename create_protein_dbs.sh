@@ -55,7 +55,7 @@ diamond blastp --query RefSeq_Eukaryote_proteins.pep --db uniprot_sprot_bacteria
 python get_ids.py -i RefSeq_Eukaryote_proteins.pep.unaligned -o RefSeq_Eukaryote_proteins.taxa.pep -taxa_lineage /lustre/projects/SethCommichaux/MTDNA/Protist_pipeline_DB/fullnamelineage.dmp
 
 # Create diamond index of eukaryote refseq protein database
-diamond makedb --in RefSeq_Eukaryote_proteins.taxa.pep --db RefSeq_Eukaryote_proteins.taxa
+diamond makedb --threads 12 --in RefSeq_Eukaryote_proteins.taxa.pep --db RefSeq_Eukaryote_proteins.taxa
 
 # Create kaiju index of eukaryote refseq protein database
 mkbwt -o RefSeq_Eukaryote_proteins.taxa.pep.kaiju -n 12 -l 100000 RefSeq_Eukaryote_proteins.taxa.pep
