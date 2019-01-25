@@ -6,7 +6,6 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --job-name="get_proteins"
 
-
 # Load modules and software paths into environment
 #
 module load Python2/common/2.7.9
@@ -23,7 +22,7 @@ cat *.fsa_aa > genbank.pep
 
 # Create mapping file that matches genbank fasta sequence IDs to NCBI taxonomy
 #
-python map_gbkID_2_taxonomy.py -g genbank.pep -t ../../Protist/protist_db/fullnamelineage.dmp -o genbank_map_ncbi_taxonomy.txt
+python map_gbkID_2_taxonomy.py -g queryDB.fasta -t ../../Protist/protist_db/fullnamelineage.dmp -o genbank_map_ncbi_taxonomy.txt
  
 
 # Extract protist protein sequences from genbank protein sequence file 
@@ -40,10 +39,10 @@ $diamond blastp --db genbank_protists --query genbank.pepwithout_protists --thre
 
 # Create binning database
 #
-cp genbank_protists.pep binningDB.fasta
-$kaiju/mkbwt -o binningDB.fasta.kaiju -n 12 -l 100000 binningDB.fasta
-$kaiju/mkfmi binningDB.fasta.kaiju
-rm binningDB.fasta.kaiju.bwt binningDB.fasta.kaiju.sa binningDB.fasta
+python reformat_binningDB.py -d ../data/genbank_protists.pep -m ../data/genbank_map_ncbi_taxonomy.txt -o ../data/binningDB.fasta
+$kaiju/mkbwt -o ../data/binningDB.fasta.kaiju -n 12 -l 100000 ../data/binningDB.fasta
+$kaiju/mkfmi ../data/binningDB.fasta.kaiju
+rm ../data/binningDB.fasta.kaiju.bwt ../data/binningDB.fasta.kaiju.sa
 
 
 # Add non-protist protein homologs to protist proteins. Then create querying database
