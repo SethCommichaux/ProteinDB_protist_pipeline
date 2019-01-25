@@ -17,7 +17,7 @@ for i in open(args.t):
 	taxaName2_ID_Lineage[taxaName] = [taxID,lineage+taxaName]
 
 with open(args.o,'w') as out:
-	out.write('GENBANKID\tTAXANAME\tTAXAID\tLINEAGE\n')
+	out.write('GENBANKID\tTAXANAME\tTAXAID\tLINEAGE\tPROTEIN_NAME\n')
 	for i in SeqIO.parse(args.g,'fasta'):
 		d = str(i.description)
 		id = str(i.id)
@@ -25,8 +25,9 @@ with open(args.o,'w') as out:
 		if '[' not in d:
 			out.write(id+'\t'+taxa+'\t'+'\t'+'\n')
 			continue
+		proteinName = ' '.join(d.split(' ')[1:]).split('[')[0]
 		taxa = d.split('[')[1].split(']')[0].upper()
 		if taxa not in taxaName2_ID_Lineage:
-			out.write(id+'\t'+taxa+'\t'+'\t'+'\n')
+			out.write(id+'\t'+taxa+'\t'+'\t'+'\t'+proteinName+'\n')
 		else:
-			out.write(id+'\t'+taxa+'\t'+taxaName2_ID_Lineage[taxa][0]+'\t'+taxaName2_ID_Lineage[taxa][1]+'\n')
+			out.write(id+'\t'+taxa+'\t'+taxaName2_ID_Lineage[taxa][0]+'\t'+taxaName2_ID_Lineage[taxa][1]+'\t'+proteinName+'\n')
