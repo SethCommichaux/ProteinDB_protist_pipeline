@@ -12,7 +12,9 @@
 module load Python2/common/2.7.9
 diamond="/fs/cbcb-scratch/scommich/ProtistDB_protein/diamond"
 kaiju="/fs/cbcb-scratch/scommich/ProtistDB_protein/kaiju/bin/" 
-
+createDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/createDB_scripts/"
+data="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/"
+run_pipeline="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/run_pipeline_scripts/"
 
 # Download, decompress and concatenate genbank protein sequence files
 #
