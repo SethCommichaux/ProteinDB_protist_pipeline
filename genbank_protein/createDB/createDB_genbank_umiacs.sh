@@ -6,6 +6,7 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --job-name="get_proteins"
 
+
 # Load modules and software paths into environment
 #
 module load Python2/common/2.7.9
@@ -19,11 +20,16 @@ wget ftp://ftp.ncbi.nih.gov/ncbi-asn1/protein_fasta/gb*.fsa_aa.gz
 gunzip *gz
 cat *.fsa_aa > genbank.pep
 
+# Download, decompress NCBI taxonomy files
+#
+wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz
+tar xvf new_taxdump.tar.gz
+
 
 # Create mapping file that matches genbank fasta sequence IDs to NCBI taxonomy
 #
 python map_gbkID_2_taxonomy.py -g queryDB.fasta -t ../../Protist/protist_db/fullnamelineage.dmp -o genbank_map_ncbi_taxonomy.txt
- 
+python protein_length_map.py -f queryDB.fasta -o proteinID_map_length.txt
 
 # Extract protist protein sequences from genbank protein sequence file 
 #
@@ -34,7 +40,7 @@ rm genbank.pep
 # Look for non-protist protein homologs of protist proteins
 #
 $diamond makedb --in genbank_protists.pep --db genbank_protists --threads 12
-$diamond blastp --db genbank_protists --query genbank.pepwithout_protists --threads 12 --outfmt 6 --id 90 --subject-cover 50 --max-target-seqs 1 --out eukaryote2bacteria.txt
+$diamond blastp --db genbank_protists --query genbank.pepwithout_protists --threads 12 --outfmt 6 --id 70 --query-cover 30 --max-target-seqs 1 --out eukaryote2bacteria.txt
 
 
 # Create binning database
