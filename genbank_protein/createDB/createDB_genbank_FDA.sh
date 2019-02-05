@@ -84,3 +84,4 @@ $diamond blastp --db protist_ancestral_busco_proteins --query genbank_protists.p
 #
 rm -r genbank.pep alveolata_stramenophiles_ensembl* protists_ensembl* eukaryote2bacteria.txt genbank.pepwithout_protists genbank_protists.dmnd genbank_protists.pep
 
+
