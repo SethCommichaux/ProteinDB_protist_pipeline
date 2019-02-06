@@ -13,7 +13,6 @@ kaiju="/fs/cbcb-scratch/scommich/ProtistDB_protein/kaiju/bin/"
 createDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/createDB_scripts/"
 data="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/"
 run_pipeline="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/run_pipeline_scripts/"
-NCBItaxonomy="/fs/cbcb-scratch/scommich/Protist/protist_db/"
 kaijuDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/binningDB.fasta.kaiju.fmi"
 diamondDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/queryDB"
 
@@ -45,13 +44,13 @@ mkdir $out
 
 # Run kaiju to query fastq reads against protein sequence binning databse (binningDB.fasta)
 #
-#$kaiju/kaiju -t $NCBItaxonomy/nodes.dmp -f $kaijuDB -i $reads_fastq -o $out/kaiju -z 12
-#$kaiju/addTaxonNames -t $NCBItaxonomy/nodes.dmp -n $NCBItaxonomy/names.dmp -i $out/kaiju -o $out/kaiju.taxa -u -p
+$kaiju/kaiju -t $data/nodes.dmp -f $kaijuDB -i $reads_fastq -o $out/kaiju -z 12
+$kaiju/addTaxonNames -t $data/nodes.dmp -n $data/names.dmp -i $out/kaiju -o $out/kaiju.taxa -u -p
 
 # Extract reads that aligned to binning database
 #
-#python extract_kaiju_reads.py -k $out/kaiju -s $reads_fastq -o $out/kaiju.fasta
-#rm $out/kaiju
+python $run_pipeline/extract_kaiju_reads.py -k $out/kaiju -s $reads_fastq -o $out/kaiju.fasta
+rm $out/kaiju
 
 # Align binned reads, with Diamond, to queryDB
 #
@@ -59,11 +58,11 @@ time $diamond blastx --db $diamondDB --query $out/kaiju.fasta --threads 12 --out
 
 # Process diamond output
 #
-python subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset
-python process_diamond_output.py -d $out/kaiju.fasta.diamond.subset -f $out/kaiju.fasta -t /fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/genbank_map_ncbi_taxonomy.txt -p /fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/proteinID_map_length.txt
+python $run_pipeline/subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset
+python $run_pipeline/process_diamond_output.py -d $out/kaiju.fasta.diamond.subset -f $out/kaiju.fasta -t $data/genbank_map_ncbi_taxonomy.txt -p $data/proteinID_map_length.txt
 
 # Create files for producing sankey diagrams
 #
-python sankey_preprocess.py -n $NCBItaxonomy/nodes.dmp -f $NCBItaxonomy/fullnamelineage.dmp -t $out/kaiju.fasta.diamond.subset.results -o $out/
+python $run_pipeline/sankey_preprocess.py -n $data/nodes.dmp -f $data/fullnamelineage.dmp -t $out/kaiju.fasta.diamond.subset.results -o $out/
 
 done
