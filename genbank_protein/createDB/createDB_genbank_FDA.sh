@@ -14,9 +14,11 @@ createDB="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/createDB_sc
 data="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/"
 run_pipeline="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/run_pipeline_scripts/"
 
+
 # Change to data directory
 #
 cd $data
+
 
 # Download, decompress and concatenate genbank protein sequence files
 #
@@ -25,6 +27,7 @@ gunzip *gz
 cat *.fsa_aa > genbank.pep
 rm *fsa_aa
 
+
 # Download, decompress NCBI taxonomy files
 #
 wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz
@@ -32,23 +35,21 @@ tar xvf new_taxdump.tar.gz
 rm new_taxdump.tar.gz rankedlineage.dmp taxidlineage.dmp type* citations.dmp delnodes.dmp division.dmp gencode.dmp host.dmp merged.dmp
 
 
-# Extract protist protein sequences from genbank protein sequence file
+# Extract protist protein sequences from genbank protein sequence file 
 #
 time python $createDB/filter_genbank_for_protist_taxa.py -g genbank.pep -l fullnamelineage.dmp -o genbank_protists.pep
 rm genbank.pep
 
 
-# Create Kaiju DB and look for non-protist protein homologs of protist proteins
+# Look for non-protist protein homologs of protist proteins
 #
-$kaiju/mkbwt -o genbank_protists.pep.kaiju -n 12 -l 100000 genbank_protists.pep
-$kaiju/mkfmi genbank_protists.pep.kaiju
-rm genbank_protists.pep.kaiju.bwt genbank_protists.pep.kaiju.sa
-$kaiju/kaijup -f genbank_protists.pep.kaiju.fmi -i genbank.pepwithout_protists -o eukaryote2bacteria.txt -z 12
+$diamond makedb --in genbank_protists.pep --db genbank_protists --threads 12
+$diamond blastp --db genbank_protists --query genbank.pepwithout_protists --threads 12 --outfmt 6 --id 70 --query-cover 30 --max-target-seqs 1 --out eukaryote2bacteria.txt
 
 
 # Add non-protist protein homologs to protist proteins. Then create querying database
 #
-python $createDB/extract_fasta_kaiju.py -k eukaryote2bacteria.txt -s genbank.pepwithout_protists -o nonprotists.pep
+python $createDB/extract_fasta_diamond.py -d eukaryote2bacteria.txt -s genbank.pepwithout_protists -o nonprotists.pep
 cat nonprotists.pep genbank_protists.pep > queryDB.fasta
 $diamond makedb --in queryDB.fasta --db queryDB --threads 12
 
@@ -85,5 +86,4 @@ $diamond blastp --db protist_ancestral_busco_proteins --query genbank_protists.p
 # Clean-up data directory
 #
 rm -r genbank.pep alveolata_stramenophiles_ensembl* protists_ensembl* eukaryote2bacteria.txt genbank.pepwithout_protists genbank_protists.dmnd genbank_protists.pep
-
 
