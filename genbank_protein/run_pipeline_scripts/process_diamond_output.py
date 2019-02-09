@@ -73,6 +73,8 @@ for i in open(args.d):
 	if gb_id not in fullnamelineage: continue
 	lineage = fullnamelineage[gb_id]
 	if 'CELLULAR ORGANISMS' not in lineage: continue
+	if 'EUKARYOTA' in lineage:
+		if 'ENVIRONMENTAL SAMPLES' in lineage: continue
 	if read not in read_LCA:
 		read_LCA[read] = lineage
 	else:
@@ -119,27 +121,6 @@ for LCA,read_count in LCA_readcount.items():
 
 
 LCA_readcount = {}
-
-'''
-purge = []
-
-for k,v in read_LCA_cumulative.items():
-	if k not in species_protein_count_cumulative:
-		purge.append(k)
-	elif len(species_protein_count_cumulative[k]) < 10:
-		purge.append(k)
-
-purge = list(set(purge))
-
-for p in purge:
-	tmp = read_LCA_cumulative[p]
-	tmp2 = ';'.join(p.split(';')[:-2])+';'
-	if tmp2 in read_LCA_cumulative:
-		read_LCA_cumulative[tmp2] += tmp
-	else:
-		read_LCA_cumulative[tmp2] = tmp
-	del read_LCA_cumulative[p]
-'''
 
 with open(args.d+'.results','w') as out:
 	for k,v in sorted(read_LCA_cumulative.items(),key=lambda x: x[1]):
