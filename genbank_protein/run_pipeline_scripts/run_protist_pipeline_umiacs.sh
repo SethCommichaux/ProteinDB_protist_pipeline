@@ -44,8 +44,8 @@ mkdir $out
 
 # Run kaiju to query fastq reads against protein sequence binning databse (binningDB.fasta)
 #
-$kaiju/kaiju -t $data/nodes.dmp -f $kaijuDB -i $reads_fastq -o $out/kaiju -z 12
-$kaiju/addTaxonNames -t $data/nodes.dmp -n $data/names.dmp -i $out/kaiju -o $out/kaiju.taxa -u -p
+$kaiju/kaiju -t $data/nodes.dmp -f $kaijuDB -i $reads_fastq -o $out/kaiju -z 12 -m 9
+#$kaiju/addTaxonNames -t $data/nodes.dmp -n $data/names.dmp -i $out/kaiju -o $out/kaiju.taxa -u -p
 
 # Extract reads that aligned to binning database
 #
