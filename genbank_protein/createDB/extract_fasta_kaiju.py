@@ -16,3 +16,4 @@ with open(args.o,'w') as out:
 		s = str(i.seq)
 		if id in extract_ids:
 			out.write(">"+d+"\n"+s+"\n")
+
