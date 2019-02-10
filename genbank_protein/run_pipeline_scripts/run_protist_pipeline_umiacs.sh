@@ -14,7 +14,7 @@ createDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/createDB_s
 data="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/"
 run_pipeline="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/run_pipeline_scripts/"
 kaijuDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/binningDB.fasta.kaiju.fmi"
-diamondDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/queryDB"
+queryDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/queryDB"
 
 
 # Input and output directories
@@ -54,7 +54,7 @@ rm $out/kaiju
 
 # Align binned reads, with Diamond, to queryDB
 #
-time $diamond blastx --db $diamondDB --query $out/kaiju.fasta --threads 12 --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen --id 60 --subject-cover 30 --out $out/kaiju.fasta.diamond
+time $diamond blastx --db $queryDB --query $out/kaiju.fasta --threads 12 --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen --id 60 --subject-cover 30 --out $out/kaiju.fasta.diamond
 
 # Process diamond output
 #
