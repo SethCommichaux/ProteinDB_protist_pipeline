@@ -42,11 +42,9 @@ reads_fastq=${i%.fastq}.trimmed.fastq
 out=$output/$(basename ${i%.fastq})
 mkdir $out
 
-
 # Trim/Filter raw reads
 #
 trimmomatic SE -threads 12 $i $reads_fastq ILLUMINACLIP:$adapters MAXINFO:120:0.2
-
 
 # Run kaiju to query fastq reads against protein sequence binning databse (binningDB.fasta)
 #
