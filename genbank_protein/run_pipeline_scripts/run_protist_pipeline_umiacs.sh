@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --time=10:00:00
+#SBATCH --time=120:00:00
 #SBATCH --mem=50GB
 #SBATCH --cpus=12
 #SBATCH --qos=large
@@ -8,6 +8,8 @@
 
 # Load modules and software paths into environment
 #
+module load biopython trimmomatic
+
 diamond="/fs/cbcb-scratch/scommich/ProtistDB_protein/diamond"
 kaiju="/fs/cbcb-scratch/scommich/ProtistDB_protein/kaiju/bin/" 
 createDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/createDB_scripts/"
@@ -15,14 +17,13 @@ data="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/"
 run_pipeline="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/run_pipeline_scripts/"
 kaijuDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/binningDB.fasta.kaiju.fmi"
 queryDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/genbank_protein/data/queryDB"
+adapters="/cbcb/sw/RedHat-7-x86_64/common/local/trimomatic/0.36/share/trimmomatic-0.36-3/adapters/TruSeq3-SE.fa"
 
 
 # Input and output directories
-# 
+#
 input="/fs/cbcb-scratch/scommich/ProtistDB_protein/simulated_data/random10RefSeqGenomes/"
 output="/fs/cbcb-scratch/scommich/ProtistDB_protein/simulated_data/random10RefSeqGenomes/"
-#input='/fs/cbcb-data/conserve/0-reads/2018_04_run/'
-#output='/fs/cbcb-scratch/scommich/CONSERVE/'
 mkdir $output
 
 ################################################################
@@ -31,16 +32,22 @@ mkdir $output
 
 for i in $input/*fastq
 
-do 
+do
 
 # Fastq file(s) to be analyzed
 #
-reads_fastq=$i
+reads_fastq=${i%.fastq}.trimmed.fastq
 
 # Output file
 #
 out=$output/$(basename ${i%.fastq})
 mkdir $out
+
+
+# Trim/Filter raw reads
+#
+trimmomatic SE -threads 12 $i $reads_fastq ILLUMINACLIP:$adapters MAXINFO:120:0.2
+
 
 # Run kaiju to query fastq reads against protein sequence binning databse (binningDB.fasta)
 #
