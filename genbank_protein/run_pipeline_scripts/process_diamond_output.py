@@ -125,8 +125,8 @@ LCA_readcount = {}
 with open(args.d+'.results','w') as out:
 	for k,v in sorted(read_LCA_cumulative.items(),key=lambda x: x[1]):
 		if k == None: continue
-		if v < 10: continue
-		if len(species_protein_count_cumulative[k]) < 10: continue
+		if v < 5: continue
+		if len(species_protein_count_cumulative[k]) < 5: continue
 		if 'EUKARYOTA' in k:
 			if 'METAZOA' not in k:
 				if 'FUNGI;' not in k:
