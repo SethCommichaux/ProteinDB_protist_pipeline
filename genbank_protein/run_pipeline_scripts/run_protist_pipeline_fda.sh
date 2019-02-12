@@ -7,22 +7,23 @@
 
 # Load modules and software paths into environment
 #
-module load biopython trimmomatic
+module load java
 
 diamond="/nfs/sw/apps/diamond/diamond"
 kaiju="/nfs/sw/apps/kaiju/"
 createDB="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/createDB_scripts/"
-data="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/"
-run_pipeline="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/run_pipeline/scripts/"
+protist_data="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/"
+run_pipeline="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/run_pipeline_scripts/"
 kaijuDB="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/binningDB.fasta.kaiju.fmi"
-queryDB="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/queryDB"
-adapters="/nfs/sw/apps/trimmomatic/Trimmomatic-0.36/adapters/TruSeq3-SE.fa"
+queryDB="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/queryDB"
+trimmomatic="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/Trimmomatic-0.38/trimmomatic-0.38.jar"
+adapters="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/Trimmomatic-0.38/adapters/TruSeq3-SE.fa"
 
 
 # Input and output directories
 #
-input="/fs/cbcb-scratch/scommich/ProtistDB_protein/simulated_data/random10RefSeqGenomes/"
-output="/fs/cbcb-scratch/scommich/ProtistDB_protein/simulated_data/random10RefSeqGenomes/"
+input="/lustre/projects/SethCommichaux/Kratom/data/"
+output="/lustre/projects/SethCommichaux/Kratom/data/"
 mkdir $output
 
 ################################################################
@@ -35,25 +36,26 @@ do
 
 # Fastq file(s) to be analyzed
 #
-reads_fastq=${i%.fastq}.trimmed.fastq
+reads_fastq=$(basename ${i%.fastq}.trimmed.fastq)
 
 # Output file
 #
 out=$output/$(basename ${i%.fastq})
 mkdir $out
 
+
 # Trim/Filter raw reads
 #
-trimmomatic SE -threads 12 $i $reads_fastq ILLUMINACLIP:$adapters MAXINFO:120:0.2
+java -jar $trimmomatic SE -threads 12 $i $out/$reads_fastq ILLUMINACLIP:$adapters:2:30:10 MAXINFO:120:0.2
+
 
 # Run kaiju to query fastq reads against protein sequence binning databse (binningDB.fasta)
 #
-$kaiju/kaiju -t $data/nodes.dmp -f $kaijuDB -i $reads_fastq -o $out/kaiju -z 12 -m 9
-#$kaiju/addTaxonNames -t $data/nodes.dmp -n $data/names.dmp -i $out/kaiju -o $out/kaiju.taxa -u -p
+$kaiju/kaiju -t $protist_data/nodes.dmp -f $kaijuDB -i $out/$reads_fastq -o $out/kaiju -z 12 -m 9
 
 # Extract reads that aligned to binning database
 #
-python $run_pipeline/extract_kaiju_reads.py -k $out/kaiju -s $reads_fastq -o $out/kaiju.fasta
+python $run_pipeline/extract_kaiju_reads.py -k $out/kaiju -s $out/$reads_fastq -o $out/kaiju.fasta
 rm $out/kaiju
 
 # Align binned reads, with Diamond, to queryDB
@@ -63,10 +65,19 @@ time $diamond blastx --db $queryDB --query $out/kaiju.fasta --threads 12 --outfm
 # Process diamond output
 #
 python $run_pipeline/subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset
-python $run_pipeline/process_diamond_output.py -d $out/kaiju.fasta.diamond.subset -f $out/kaiju.fasta -t $data/genbank_map_ncbi_taxonomy.txt -p $data/proteinID_map_length.txt
+python $run_pipeline/process_diamond_output.py -d $out/kaiju.fasta.diamond.subset -f $out/kaiju.fasta -t $protist_data/genbank_map_ncbi_taxonomy.txt -p $protist_data/proteinID_map_length.txt
 
 # Create files for producing sankey diagrams
 #
-python $run_pipeline/sankey_preprocess.py -n $data/nodes.dmp -f $data/fullnamelineage.dmp -t $out/kaiju.fasta.diamond.subset.results -o $out/
+python $run_pipeline/sankey_preprocess.py -n $protist_data/nodes.dmp -f $protist_data/fullnamelineage.dmp -t $out/kaiju.fasta.diamond.subset.results -o $out/
+
+# Summarize analysis
+#
+python summarize.py -rr $i -tr $out/$reads_fastq -kf $out/kaiju -d $out/kaiju.fasta.diamond -ds $out/kaiju.fasta.diamond.subset -t $out/kaiju.fasta.diamond.subset.results -o $out/summary_report.txt
+
+# Clean up
+#
+rm $out/$reads_fastq $out/kaiju.fasta
+# $out/kaiju.fasta.diamond $out/kaiju.fasta.diamond.subset
 
 done
