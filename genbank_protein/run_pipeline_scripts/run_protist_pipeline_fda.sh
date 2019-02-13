@@ -73,7 +73,7 @@ python $run_pipeline/sankey_preprocess.py -nodes $protist_data/nodes.dmp -lineag
 
 # Summarize analysis
 #
-python $run_pipeline/summarize.py -rr $i -tr $out/$reads_fastq -kf $out/kaiju -d $out/kaiju.fasta.diamond -ds $out/kaiju.fasta.diamond.subset -t $out/kaiju.fasta.diamond.subset.results -o $out/summary_report.txt
+python $run_pipeline/summarize.py -rr $i -tr $out/$reads_fastq -kf $out/kaiju.fasta -d $out/kaiju.fasta.diamond -ds $out/kaiju.fasta.diamond.subset -t $out/kaiju.fasta.diamond.subset.results -o $out/summary_report.txt
 
 # Clean up
 #
