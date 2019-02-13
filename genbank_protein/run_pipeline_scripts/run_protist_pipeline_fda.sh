@@ -60,20 +60,20 @@ rm $out/kaiju
 
 # Align binned reads, with Diamond, to queryDB
 #
-time $diamond blastx --db $queryDB --query $out/kaiju.fasta --threads 12 --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen --id 60 --subject-cover 30 --out $out/kaiju.fasta.diamond
+time $diamond blastx --evalue 0.00001 --db $queryDB --query $out/kaiju.fasta --threads 12 --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen --out $out/kaiju.fasta.diamond
 
 # Process diamond output
 #
 python $run_pipeline/subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset
-python $run_pipeline/process_diamond_output.py -d $out/kaiju.fasta.diamond.subset -f $out/kaiju.fasta -t $protist_data/genbank_map_ncbi_taxonomy.txt -p $protist_data/proteinID_map_length.txt
+python $run_pipeline/process_diamond_output.py -num_reads 2 -num_prots 2 -d $out/kaiju.fasta.diamond.subset -f $out/kaiju.fasta -t $protist_data/genbank_map_ncbi_taxonomy.txt -p $protist_data/proteinID_map_length.txt
 
 # Create files for producing sankey diagrams
 #
-python $run_pipeline/sankey_preprocess.py -n $protist_data/nodes.dmp -f $protist_data/fullnamelineage.dmp -t $out/kaiju.fasta.diamond.subset.results -o $out/
+python $run_pipeline/sankey_preprocess.py -nodes $protist_data/nodes.dmp -lineage $protist_data/fullnamelineage.dmp -results $out/kaiju.fasta.diamond.subset.results -o $out
 
 # Summarize analysis
 #
-python summarize.py -rr $i -tr $out/$reads_fastq -kf $out/kaiju -d $out/kaiju.fasta.diamond -ds $out/kaiju.fasta.diamond.subset -t $out/kaiju.fasta.diamond.subset.results -o $out/summary_report.txt
+python $run_pipeline/summarize.py -rr $i -tr $out/$reads_fastq -kf $out/kaiju -d $out/kaiju.fasta.diamond -ds $out/kaiju.fasta.diamond.subset -t $out/kaiju.fasta.diamond.subset.results -o $out/summary_report.txt
 
 # Clean up
 #
