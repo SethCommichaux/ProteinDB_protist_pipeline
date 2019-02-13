@@ -26,7 +26,7 @@ for i in open(args.tr):
         if i[0] == "+": tr +=1
 
 for i in open(args.kf):
-        if i[0] = ">": kf += 1
+        if i[0] == ">": kf += 1
 
 d = len({i.strip().split('\t')[0] for i in open(args.d)})
 
