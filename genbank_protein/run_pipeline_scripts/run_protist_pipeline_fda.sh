@@ -22,8 +22,8 @@ adapters="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/Trimmo
 
 # Input and output directories
 #
-input="/lustre/projects/SethCommichaux/Kratom/data/"
-output="/lustre/projects/SethCommichaux/Kratom/data/"
+input=""
+output=""
 mkdir $output
 
 ################################################################
@@ -36,6 +36,7 @@ do
 
 # Fastq file(s) to be analyzed
 #
+read_count=`grep -c "^+" $i`
 reads_fastq=$(basename ${i%.fastq}.trimmed.fastq)
 
 # Output file
@@ -51,12 +52,11 @@ java -jar $trimmomatic SE -threads 12 $i $out/$reads_fastq ILLUMINACLIP:$adapter
 
 # Run kaiju to query fastq reads against protein sequence binning databse (binningDB.fasta)
 #
-$kaiju/kaiju -t $protist_data/nodes.dmp -f $kaijuDB -i $out/$reads_fastq -o $out/kaiju -z 12 -m 9
+$kaiju/kaijux -f $kaijuDB -i $out/$reads_fastq -z 12 -m 9 | grep "^C" > $out/kaiju
 
 # Extract reads that aligned to binning database
 #
 python $run_pipeline/extract_kaiju_reads.py -k $out/kaiju -s $out/$reads_fastq -o $out/kaiju.fasta
-rm $out/kaiju
 
 # Align binned reads, with Diamond, to queryDB
 #
@@ -64,8 +64,8 @@ time $diamond blastx --evalue 0.00001 --db $queryDB --query $out/kaiju.fasta --t
 
 # Process diamond output
 #
-python $run_pipeline/subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset
-python $run_pipeline/process_diamond_output.py -num_reads 2 -num_prots 2 -d $out/kaiju.fasta.diamond.subset -f $out/kaiju.fasta -t $protist_data/genbank_map_ncbi_taxonomy.txt -p $protist_data/proteinID_map_length.txt
+python $run_pipeline/subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset -p $protist_data/proteinID_map_length.txt
+python $run_pipeline/process_diamond_output.py -num_reads 2 -num_prots 2 -d $out/kaiju.fasta.diamond.subset -f $read_count -t $protist_data/genbank_map_ncbi_taxonomy.txt -p $protist_data/proteinID_map_length.txt
 
 # Create files for producing sankey diagrams
 #
@@ -73,11 +73,15 @@ python $run_pipeline/sankey_preprocess.py -nodes $protist_data/nodes.dmp -lineag
 
 # Summarize analysis
 #
-python $run_pipeline/summarize.py -rr $i -tr $out/$reads_fastq -kf $out/kaiju.fasta -d $out/kaiju.fasta.diamond -ds $out/kaiju.fasta.diamond.subset -t $out/kaiju.fasta.diamond.subset.results -o $out/summary_report.txt
+echo "raw_fastq: " > $out/summary_report.txt; $read_count >> $out/summary_report.txt;
+echo "trimmed_fastq: " >> $out/summary_report.txt; grep -c "^+" $out/$reads_fastq >> $out/summary_report.txt; 
+echo "kaiju_fasta: " >> $out/summary_report.txt; grep -c "^>" $out/kaiju.fasta >> $out/summary_report.txt; 
+echo "diamond_aligned: " >> $out/summary_report.txt; awk -F "\t" '{print $1}' $out/kaiju.fasta.diamond | sort | uniq | wc -l >> $out/summary_report.txt; 
+echo "subset_diamond_aligned: " >> $out/summary_report.txt; awk -F "\t" '{print $1}' $out/kaiju.fasta.diamond.subset | sort | uniq | wc -l >> $out/summary_report.txt; 
 
 # Clean up
 #
-rm $out/$reads_fastq $out/kaiju.fasta
+rm $out/$reads_fastq $out/kaiju.fasta $out/kaiju
 # $out/kaiju.fasta.diamond $out/kaiju.fasta.diamond.subset
 
 done
