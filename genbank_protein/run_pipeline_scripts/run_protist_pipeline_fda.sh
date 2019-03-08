@@ -73,7 +73,7 @@ python $run_pipeline/sankey_preprocess.py -nodes $protist_data/nodes.dmp -lineag
 
 # Summarize analysis
 #
-echo "raw_fastq: " > $out/summary_report.txt; $read_count >> $out/summary_report.txt;
+echo "raw_fastq: " > $out/summary_report.txt; echo $read_count >> $out/summary_report.txt;
 echo "trimmed_fastq: " >> $out/summary_report.txt; grep -c "^+" $out/$reads_fastq >> $out/summary_report.txt; 
 echo "kaiju_fasta: " >> $out/summary_report.txt; grep -c "^>" $out/kaiju.fasta >> $out/summary_report.txt; 
 echo "diamond_aligned: " >> $out/summary_report.txt; awk -F "\t" '{print $1}' $out/kaiju.fasta.diamond | sort | uniq | wc -l >> $out/summary_report.txt; 
