@@ -64,7 +64,7 @@ time $diamond blastx --evalue 0.00001 --db $queryDB --query $out/kaiju.fasta --t
 # Process diamond output
 #
 python $run_pipeline/subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset -p $protist_data/proteinID_map_length.txt
-python $run_pipeline/process_diamond_output.py -num_reads 2 -num_prots 2 -d $out/kaiju.fasta.diamond.subset -f $read_count -t $protist_data/genbank_map_ncbi_taxonomy.txt -p $protist_data/proteinID_map_length.txt
+python $run_pipeline/process_diamond_output.py -num_reads 2 -num_prots 2 -d $out/kaiju.fasta.diamond.subset -f $read_count -t $protist_data/genbank_map_ncbi_taxonomy.txt
 
 # Create files for producing sankey diagrams
 #
