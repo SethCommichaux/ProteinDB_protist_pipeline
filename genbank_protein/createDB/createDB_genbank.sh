@@ -23,12 +23,13 @@ mkdir $data
 cd $data
 
 
-# Download, decompress and concatenate genbank protein sequence files 
+# Download, decompress and concatenate genbank protein sequence files
 #
 wget ftp://ftp.ncbi.nih.gov/ncbi-asn1/protein_fasta/gb*.fsa_aa.gz
 gunzip *gz
-cat *.fsa_aa > queryDB.pep
+cat *.fsa_aa > genbank.pep
 rm *fsa_aa
+
 
 # Download, decompress NCBI taxonomy files
 #
@@ -37,14 +38,15 @@ tar xvf new_taxdump.tar.gz
 rm new_taxdump.tar.gz rankedlineage.dmp taxidlineage.dmp type* citations.dmp delnodes.dmp division.dmp gencode.dmp host.dmp merged.dmp
 
 
+# Create mapping file that matches genbank fasta sequence IDs to NCBI taxonomy
+#
+python $createDB/processDB.py -g genbank.pep -t fullnamelineage.dmp
+#rm genbank.pep
+
+
 # Make queryDB
 #
 $diamond makedb --in queryDB.pep --db queryDB --threads 12
-
-
-# Create mapping file that matches genbank fasta sequence IDs to NCBI taxonomy
-#
-python $createDB/processDB.py -g queryDB.pep -t fullnamelineage.dmp
 
 
 # Create binning database
