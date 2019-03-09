@@ -9,8 +9,6 @@ parser.add_argument("-t", type=str,
 						help="The genbank_map_ncbi_taxonomy.txt file from creating database.")
 parser.add_argument("-f", type=int,
 			help="Read count of input file")
-parser.add_argument("-p", type=str,
-						help="Text file that maps protein IDs to protein lengths in amino acids")
 parser.add_argument("-num_reads", type=str,
 						help="Minimum number of mapped reads to include phylogroup")
 parser.add_argument("-num_prots", type=str,
@@ -24,25 +22,11 @@ def build_taxa_dicts():
 	for i in open(args.t):
 		tmp = i.strip().split('\t')
 		gb_id = tmp[0]
-		try: lineage = tmp[3]
-		except:
-			if gb_id in fullnamelineage: 
-				del fullnamelineage[gb_id]
-				continue
-		if gb_id in fullnamelineage:
-			fullnamelineage[gb_id] = lineage
-	print "Built lineage dictionary!!!"
-
-	proteinID_len = {}
-	for i in open(args.p):
-		tmp = i.strip().split('\t')
-		gb_id = tmp[0]
-		prot_len = int(tmp[1])
-		if gb_id in fullnamelineage:
-			proteinID_len[gb_id] = prot_len
-	print "Built proteinID dictionary!!!"
-
-	return fullnamelineage,proteinID_len
+		prot_len = int(tmp[5])
+		lineage = tmp[3]
+		fullnamelineage[gb_id] = [prot_len,lineage]
+	print "Built taxa dictionary!!!"
+	return fullnamelineage
 
 
 def LCA(x,y):
@@ -56,19 +40,22 @@ def LCA(x,y):
 			return new_lineage
 
 
-fullnamelineage,proteinID_len = build_taxa_dicts()
-read_LCA,species_protein_count,ANI = {},{},{}
+fullnamelineage = build_taxa_dicts()
+read_LCA = {}
+species_protein_count = {}
+ANI = {}
+ANI_lineage = {}
+ANI_cumulative = {}
+species_protein_count_cumulative = {}
+read_LCA_cumulative = {}
 
 
 # qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen
 for i in open(args.d):
 	tmp = i.strip().split('\t')
 	read,gb_id,pident,qlen,start,stop,bitscore = tmp[0],tmp[1],float(tmp[2]),int(tmp[-1]),int(tmp[6]),int(tmp[7]),float(tmp[11])
-	if gb_id not in fullnamelineage: continue
-	lineage = fullnamelineage[gb_id]
-	if 'CELLULAR ORGANISMS' not in lineage: continue
-	if 'EUKARYOTA' in lineage:
-		if 'ENVIRONMENTAL SAMPLES' in lineage: continue
+	lineage = fullnamelineage[gb_id][1]
+# 	if 'CELLULAR ORGANISMS' not in lineage: continue
 	if read not in read_LCA:
 		read_LCA[read] = lineage
 	else:
@@ -84,7 +71,6 @@ for i in open(args.d):
 
 print "Processed diamond file!!!"
 
-ANI_lineage,fullnamelineage = {},{}
 
 for read,pident in ANI.items():
 	if read in read_LCA:
@@ -93,7 +79,7 @@ for read,pident in ANI.items():
 		else:
 			ANI_lineage[read_LCA[read]] = pident
 
-ANI,ANI_cumulative = {},{}
+ANI = {}
 
 for lineage,pident in ANI_lineage.items():
 	if lineage == None: continue
@@ -106,7 +92,6 @@ for lineage,pident in ANI_lineage.items():
 			ANI_cumulative[line] = pident
 
 ANI_lineage = {}
-species_protein_count_cumulative = {}
 
 for species,protein_count in species_protein_count.items():
 	tmp = map(lambda z: z.strip(),species.split(';'))
@@ -121,7 +106,6 @@ for species,protein_count in species_protein_count.items():
 LCA_readcount = Counter(read_LCA.values())
 species_protein_count,read_LCA = {},{}
 
-read_LCA_cumulative = {}
 
 for LCA,read_count in LCA_readcount.items():
 	if LCA == None: continue
@@ -146,5 +130,4 @@ with open(args.d+'.results','w') as out:
 			if 'METAZOA' not in k:
 				if 'FUNGI;' not in k:
 					if 'EMBRYOPHYTA' not in k:
-						out.write(str(k)+'\t'+str(v)+'\t'+str(v/float(args.f))+'\t'+str(len(species_protein_count_cumulative[k]))+'\t'+str(sum(map(lambda z: proteinID_len[z],species_protein_count_cumulative[k])))+'\t'+str(float(sum(ANI_cumulative.get(k,1)))/len(ANI_cumulative.get(k,1)))+'\n')
-
+						out.write(str(k)+'\t'+str(v)+'\t'+str(v/float(args.f))+'\t'+str(len(species_protein_count_cumulative[k]))+'\t'+str(sum(map(lambda z: fullnamelineage[z][0],species_protein_count_cumulative[k])))+'\t'+str(float(sum(ANI_cumulative.get(k,1)))/len(ANI_cumulative.get(k,1)))+'\n')
