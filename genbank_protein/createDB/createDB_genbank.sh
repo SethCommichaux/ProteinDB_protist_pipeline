@@ -44,13 +44,7 @@ $diamond makedb --in queryDB.pep --db queryDB --threads 12
 
 # Create mapping file that matches genbank fasta sequence IDs to NCBI taxonomy
 #
-python $createDB/map_gbkID_2_taxonomy.py -g queryDB.pep -t fullnamelineage.dmp -o genbank_map_ncbi_taxonomy.txt
-python $createDB/protein_length_map.py -f queryDB.pep -o proteinID_map_length.txt
-
-
-# Extract protist protein sequences from genbank protein sequence file
-#
-time python $createDB/filter_genbank_for_protist_taxa.py -g queryDB.pep -l fullnamelineage.dmp -o binningDB.pep
+python $createDB/processDB.py -g queryDB.pep -t fullnamelineage.dmp
 
 
 # Create binning database
@@ -73,3 +67,4 @@ rm binningDB.pep.kaiju.bwt binningDB.pep.kaiju.sa
 #
 #$diamond makedb --in protist_ancestral_busco_proteins.fasta --db protist_ancestral_busco_proteins --threads 12
 #$diamond blastp --db protist_ancestral_busco_proteins --query binningDB.pep --threads 12 --outfmt 6 --id 50 --subject-cover 50 --out protist_busco_candidates.txt --max-target-seqs 1
+
