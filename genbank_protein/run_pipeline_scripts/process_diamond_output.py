@@ -55,7 +55,12 @@ for i in open(args.d):
 	tmp = i.strip().split('\t')
 	read,gb_id,pident,qlen,start,stop,bitscore = tmp[0],tmp[1],float(tmp[2]),int(tmp[-1]),int(tmp[6]),int(tmp[7]),float(tmp[11])
 	lineage = fullnamelineage[gb_id][1]
-# 	if 'CELLULAR ORGANISMS' not in lineage: continue
+ 	if 'VIRUS' in lineage: 
+		read_LCA[read] = None
+		continue
+	if 'BACTERIA' in lineage: 
+		read_LCA[read] = None
+		continue
 	if read not in read_LCA:
 		read_LCA[read] = lineage
 	else:
