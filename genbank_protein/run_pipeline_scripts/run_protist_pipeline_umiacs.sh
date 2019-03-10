@@ -8,6 +8,8 @@
 
 # Load modules and software paths into environment
 #
+module load Python2/common/2.7.9
+
 diamond="/fs/cbcb-scratch/scommich/ProtistDB_protein/diamond"
 kaiju="/fs/cbcb-scratch/scommich/ProtistDB_protein/kaiju/bin/" 
 createDB="/fs/cbcb-scratch/scommich/ProtistDB_protein/createDB_scripts/"
