@@ -8,6 +8,7 @@
 # Load modules and software paths into environment
 #
 module load java
+module load biopython
 
 diamond="/nfs/sw/apps/diamond/diamond"
 kaiju="/nfs/sw/apps/kaiju/"
