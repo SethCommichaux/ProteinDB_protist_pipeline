@@ -17,8 +17,8 @@ protist_data="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/"
 run_pipeline="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/run_pipeline_scripts/"
 kaijuDB="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/binningDB.fasta.kaiju.fmi"
 queryDB="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/queryDB"
-trimmomatic="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/Trimmomatic-0.38/trimmomatic-0.38.jar"
-adapters="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/data/Trimmomatic-0.38/adapters/TruSeq3-SE.fa"
+trimmomatic="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/Trimmomatic-0.38/trimmomatic-0.38.jar"
+adapters="/lustre/projects/SethCommichaux/ProteinDB_protist_pipeline/Trimmomatic-0.38/adapters/TruSeq3-SE.fa"
 
 
 # Input and output directories
