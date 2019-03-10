@@ -3,8 +3,6 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", type=str,
 			help="Input diamond results file (--outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen)")
-parser.add_argument("-p", type=str,
-			help="Protein length mapping file")
 parser.add_argument("-o", type=str,
 			help="Desired output path for subsetted Diamond output file")
 args = parser.parse_args()
@@ -24,8 +22,9 @@ def merge_ranges(ranges):
 	yield current_start, current_stop
 
 
-protein_lengths = {i.strip().split('\t')[0]:int(i.strip().split('\t')[1]) for i in open(args.p)}
-protein_coverage,read2bitscore = {},{}
+protein_coverage = {}
+read2bitscore = {}
+results = {}
 
 for i in open(args.d):
 	tmp = i.strip().split('\t')
@@ -44,7 +43,6 @@ for i in open(args.d):
 			else:
 				protein_coverage[protein] = [(start,end)]
 
-results = {}
 
 for k,v in protein_coverage.items():
 	num_reads = len(v)
@@ -74,4 +72,3 @@ with open(args.o,'w') as out:
 			if bitscore == read2bitscore[read]:
 				if results.get(protein,False) == True:
 					out.write(i)
-
