@@ -41,7 +41,7 @@ rm new_taxdump.tar.gz rankedlineage.dmp taxidlineage.dmp type* citations.dmp del
 # Create mapping file that matches genbank fasta sequence IDs to NCBI taxonomy
 #
 python $createDB/processDB.py -g genbank.pep -t fullnamelineage.dmp
-#rm genbank.pep
+rm genbank.pep
 
 
 # Make queryDB
@@ -54,19 +54,4 @@ $diamond makedb --in queryDB.pep --db queryDB --threads 12
 $kaiju/mkbwt -o binningDB.pep.kaiju -n 12 -l 100000 binningDB.pep
 $kaiju/mkfmi binningDB.pep.kaiju
 rm binningDB.pep.kaiju.bwt binningDB.pep.kaiju.sa
-
-
-# Download, decompress and process protist BUSCO genes
-#
-#wget https://busco.ezlab.org/datasets/alveolata_stramenophiles_ensembl.tar.gz
-#wget https://busco.ezlab.org/datasets/protists_ensembl.tar.gz
-#tar xvf alveolata_stramenophiles_ensembl.tar.gz
-#tar xvf protists_ensembl.tar.gz
-#cat alveolata_stramenophiles_ensembl/ancestral* protists_ensembl/ancestral* > protist_ancestral_busco_proteins.fasta
-#rm -r alveolata_stramenophiles_ensembl* protists_ensembl*
-
-# Identify protist proteins homologous to protist BUSCO genes
-#
-#$diamond makedb --in protist_ancestral_busco_proteins.fasta --db protist_ancestral_busco_proteins --threads 12
-#$diamond blastp --db protist_ancestral_busco_proteins --query binningDB.pep --threads 12 --outfmt 6 --id 50 --subject-cover 50 --out protist_busco_candidates.txt --max-target-seqs 1
 
