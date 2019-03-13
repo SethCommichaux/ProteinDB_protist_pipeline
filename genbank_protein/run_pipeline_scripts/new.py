@@ -7,8 +7,8 @@ parser.add_argument("-t", type=str,
 						help="The genbank_map_ncbi_taxonomy.txt file from creating database.")
 parser.add_argument("-f", type=int,
 						help="Read count of input file")
-parser.add_argument("-ANI", type=int,
-						help="Minimum average nucleotide identity for reads aligned to phylogroup")
+parser.add_argument("-ANI", type=float,
+						help="Minimum average nucleotide identity (e.g. 80 for 80%) for reads aligned to phylogroup")
 parser.add_argument("-num_reads", type=str,
 						help="Minimum number of mapped reads to include phylogroup")
 parser.add_argument("-num_prots", type=str,
@@ -55,6 +55,7 @@ def calc_ANI(pident,aln):
 	weight = 0
 	for i in range(len(pident)):
 		weight += pident[i]*aln[i]/100.0
+	if weight/total_len < args.ANI: return False
 	return weight/total_len
 
 
@@ -112,6 +113,9 @@ for LCA,v in results.items():
 	pident = v[2]
 	aln = v[3]
 	ANI = calc_ANI(pident,aln)
+	if ANI == False:
+		del results[LCA]
+		continue
 	results[LCA] = [read_count,protein_count,ANI,pident,aln]
 
 
