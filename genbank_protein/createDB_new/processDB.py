@@ -28,7 +28,8 @@ def uniprot_annotations(ids):
 		uniprotID = tmp[0]
 		category = tmp[1]
 		categoryID = tmp[2]
-		if uniprotID not in ids:
+		if uniprotID not in ids: continue
+		if uniprotID not in results:
 			results[uniprotID] = [0,0,0]
 		elif category == 'KEGG':
 			results[uniprotID][0] = categoryID
