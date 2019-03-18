@@ -67,9 +67,12 @@ with open('queryDB_functions.txt','w') as out:
 		lineage = taxaID2_Name_Lineage[taxaID][1]
 		taxaName = taxaID2_Name_Lineage[taxaID][0]
 		proteinName = ' '.join(d.split(' ')[1:]).split('n=')[0]
-		KEGG = str(results[uniprot][0])
-		KO = str(results[uniprot][1])
-		eggNOG = str(results[uniprot][2])
+		if uniprot not in results:
+			KEGG,KO,eggNOG = '0','0','0'
+		else:
+			KEGG = str(results[uniprot][0])
+			KO = str(results[uniprot][1])
+			eggNOG = str(results[uniprot][2])
 		if 'BACTERIA' in lineage: bacteria +=1
 		elif 'VIRUS' in lineage: virus +=1
 		elif 'ARCHAEA' in lineage: archaea +=1
