@@ -86,3 +86,4 @@ rm $out/$reads_fastq $out/kaiju.fasta $out/kaiju
 # $out/kaiju.fasta.diamond $out/kaiju.fasta.diamond.subset
 
 done
+
