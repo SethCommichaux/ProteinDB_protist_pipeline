@@ -71,7 +71,7 @@ def purge_results(results):
                                                 thresholds[k][LCA] += w
                                                 thresholds[k][LCA] = sorted(thresholds[k][LCA])
 
-        with open('test2','a') as out:
+        with open('protist_thresholds.txt','a') as out:
                 lineage = uniref100_2_Lineage['_'.join(k.split('_')[:2])]
                 lineage = ';'.join(map(lambda x:x.strip(),lineage.split(';')))+';'
                 for k,v in sorted(thresholds.items()):
@@ -111,4 +111,4 @@ for i in open(args.d):
                 else:
                         results[uniref100][lineage].append(pident)
 
-
+purge_results(results)
