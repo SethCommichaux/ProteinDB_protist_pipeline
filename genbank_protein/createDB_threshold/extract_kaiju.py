@@ -11,6 +11,6 @@ args = parser.parse_args()
 kaiju = {i.strip().split('\t')[1].split(' ')[0]:0 for i in open(args.k)}
 
 with open(args.o,'w') as out:
-	for i in SeqIO.parse(args.u,'fasta'):
-		if str(i.id) in kaiju:
-			out.write(">"+str(i.description)+"\n"+str(i.seq)+"\n")
+        for i in SeqIO.parse(args.u,'fasta'):
+                if str(i.id) in kaiju:
+                        out.write(">"+str(i.description.split('TaxID=')[1].split(' ')[0])+"\n"+str(i.seq)+"\n")
