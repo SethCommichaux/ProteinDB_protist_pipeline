@@ -47,14 +47,14 @@ rm protists.pep.kaiju.bwt protists.pep.kaiju.sa
 # Extract homologs of protist proteins
 #
 $kaiju/kaijup -f protists.pep -i uniref100.fasta -z 12 -m 9 | grep "^C" > protist_homologs
-python extract_kaiju.py -k protist_homologs -o protist_homologs.pep -u uniref100.fasta
+python $createDB/extract_kaiju.py -k protist_homologs -o protist_homologs.pep -u uniref100.fasta
 $diamond makedb --in protist_homologs.pep --db protist_homologs --threads 12
 # rm uniref100.fasta protist_homologs
 
 
 # Get homology information for each protist protein
 #
-python kmer_split.py -k 40 -i protists.pep -o queries.pep
+python $createDB/kmer_split.py -k 40 -i protists.pep -o queries.pep
 $diamond blastp --query queries.pep --db protist_homologs --threads 12 --id 50 --query-cover 100 --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen --out protist_homologs.txt
 # rm queries.pep protist_homologs.pep protist_homologs.dmnd
 
@@ -67,5 +67,5 @@ python $createDB/processDB.py -q protists.pep -u idmapping.dat -t fullnamelineag
 
 # Find protein-specific thresholds
 #
-python find_thresholds.py -d protist_homologs.txt -m protist_functions.txt
+python $createDB/find_thresholds.py -d protist_homologs.txt -m protist_functions.txt
 
