@@ -54,7 +54,7 @@ $diamond makedb --in protist_homologs.pep --db protist_homologs --threads 12
 
 # Get homology information for each protist protein
 #
-python $createDB/kmer_split.py -k 40 -i protists.pep -o queries.pep
+python $createDB/kmer_split.py -k 40 -s 20 -i protists.pep -o queries.pep
 $diamond blastp --query queries.pep --db protist_homologs --threads 12 --id 50 --query-cover 100 --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq qlen --out protist_homologs.txt
 # rm queries.pep protist_homologs.pep protist_homologs.dmnd
 
