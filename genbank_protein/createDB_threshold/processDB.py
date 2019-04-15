@@ -55,7 +55,6 @@ results = uniprot_annotations(ids)
 with open('protist_functions.txt','w') as out:
         out.write('UNIREF100_ID\tTAXANAME\tTAXAID\tLINEAGE\tPROTEIN_NAME\tPROTEIN_LENGTH\tKEGG\tKO\teggNOG\n')
         for i in SeqIO.parse(args.q,'fasta'):
-                queryDB +=1
                 UniRef100 = str(i.id)
                 uniprot = UniRef100.replace('UniRef100_','')
                 d = str(i.description)
@@ -72,5 +71,3 @@ with open('protist_functions.txt','w') as out:
                         KO = str(results[uniprot][1])
                         eggNOG = str(results[uniprot][2])
                 out.write(UniRef100+'\t'+taxaName+'\t'+taxaID+'\t'+lineage+'\t'+proteinName+'\t'+prot_len+'\t'+KEGG+'\t'+KO+'\t'+eggNOG+'\n')
-
-
