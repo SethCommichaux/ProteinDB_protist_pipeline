@@ -13,5 +13,8 @@ step = int(args.s)
 
 with open(args.o,'w') as out:
         for i in SeqIO.parse(args.i,'fasta'):
-                for j in range(0,len(i.seq),step):
-                        out.write(">"+str(i.id)+"_"+str(j)+"\n"+str(i.seq[j:j+kmer])+"\n")
+                if len(str(i.seq[-kmer:])) < kmer:
+                        out.write(">"+str(i.id)+"_"+str(len(i.seq)-kmer)+"\n"+str(i.seq[-kmer:])+"\n")
+                else:
+                        for j in range(0,len(i.seq)+1-step,step):
+                                out.write(">"+str(i.id)+"_"+str(j)+"\n"+str(i.seq[j:j+kmer])+"\n")
