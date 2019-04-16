@@ -66,7 +66,7 @@ time $diamond blastx --evalue 0.0000000001 --db $queryDB --query $out/kaiju.fast
 # Process diamond output
 #
 python $run_pipeline/subset_diamond_best_bitscore.py -d $out/kaiju.fasta.diamond -o $out/kaiju.fasta.diamond.subset
-python $run_pipeline/score.py -t $protist_data/protist_thresholds.txt -d $out/kaiju.fasta.diamond.subset -o $out/results
+python $run_pipeline/score.py -f $protist_data/fullnamelineage.dmp -t $protist_data/protist_thresholds.txt -d $out/kaiju.fasta.diamond.subset -o $out/results
 
 
 # Create files for producing sankey diagrams
