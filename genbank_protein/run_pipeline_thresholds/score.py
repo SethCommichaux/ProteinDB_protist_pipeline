@@ -3,6 +3,21 @@ import ast
 import argparse
 import collections
 
+def LCA(taxa):
+        for i,j in enumerate(taxa):
+                c = 0
+                j = j.split(';')
+                if i == 0:
+                        new_lineage = j
+                else:
+                        for i in range(min(len(j),len(new_lineage))):
+                                if j[i] == new_lineage[i]:
+                                        c += 1
+                        new_lineage = new_lineage[:c]
+        new_lineage = ';'.join(new_lineage)
+        return new_lineage
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-t", help="Protist protein-specific thresholds file")
 parser.add_argument("-f", help="NCBI fullnamelineage.dmp taxonomy file")
@@ -25,10 +40,7 @@ for h,i in enumerate(open(protein_thresholds)):
         thresholds[uniref100] = cutoffs
 
 
-results = {}
-multiprotist_reads = collections.Counter([i.strip().split('\t')[0] for i in open(diamond_file)])
-
-results_cumulative = {}
+results, LCA_results, results_cumulative = {},[],{}
 
 with open(args.o,'w') as out:
         for i in open(diamond_file):
@@ -38,10 +50,9 @@ with open(args.o,'w') as out:
                 read = tmp[0]
                 uniref100 = tmp[1]
                 aln = float(tmp[3])
+                if aln < 30: continue
                 bitscore = float(tmp[11])
-                multi = multiprotist_reads[read]
-                if multi > 1: uniq = 0
-                else: uniq = 1
+                uniq = 1 # need to remove line
                 if uniref100 in thresholds:
                         for k,v in thresholds[uniref100].items():
                                 if bitscore >= (v[1] + v[0]*aln):
@@ -50,27 +61,29 @@ with open(args.o,'w') as out:
                         else:
                                 for z in ['species','genus','family','order','class','phylum']:
                                         if z in result:
-                                                taxa = result[z]+'_'+z
-                                                if taxa in results:
-                                                        results[taxa][0] += 1
-                                                        results[taxa][1] += uniq
-                                                else: results[taxa] = [1,uniq]
+                                                taxa = result[z]
+                                                lineage = map(lambda z:z.strip(),lineages[taxa].split(';'))
+                                                lineage = ';'.join(lineage)
+                                                if read not in results:
+                                                        results[read] = [lineage]
+                                                else: results[read].append(lineage)
                                                 break
 
-        for k,v in sorted(results.items(),key=lambda x:x[1]):
-                if v[1] > 0:
-                        taxa = k.split('_')[0]
-                        lineage = lineages.get(taxa,0).strip()
-                        if lineage == 0:
-                                continue
-                        line = ''
-                        for i in lineage.split(';'):
-                                line += i+';'
-                                if line not in results_cumulative:
-                                        results_cumulative[line] = v[0]
-                                else:
-                                        results_cumulative[line] += v[0]
+        for k,v in results.items():
+                if len(v) == 1:
+                        LCA_results.append(v[0])
+                else: LCA_results.append(LCA(v))
+
+        for k,v in collections.Counter(LCA_results).items():
+                line = ''
+                for i in k.split(';'):
+                        line += i+';'
+                        if line not in results_cumulative:
+                                results_cumulative[line] = v
+                        else:
+                                results_cumulative[line] += v
 
         for k,v in sorted(results_cumulative.items()):
                 out.write(k+'\t'+str(v)+'\n')
+
 
